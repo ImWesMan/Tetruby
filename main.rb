@@ -1,47 +1,78 @@
 # main.rb
 require 'gosu'
 require_relative 'lib/soundtrack_manager'
+require_relative 'lib/background_manager'
 
 class GameWindow < Gosu::Window
   def initialize
-    super(800, 600)  
-    self.caption = 'Tetruby'  
+    super(1080, 720)
+    self.caption = 'Tetruby'
+
+    @logo = Gosu::Image.new("assets/images/sprites/tetrubylogo.png")
 
     @soundtrack_manager = SoundtrackManager.new
-    @soundtrack_manager.play_background_music(self) 
+    @soundtrack_manager.shuffle_music(self)
+    @soundtrack_manager.play_background_music(self)
+
+    @background_manager = BackgroundManager.new
+    @background_manager.shuffle_background
 
     @menu_displayed = true
+    @font = Gosu::Font.new(24)
   end
 
   def update
     @soundtrack_manager.update(self)
-
-    if @menu_displayed
-    
-    else
-     
-    end
   end
 
   def draw
+    @background_manager.draw(self)
+    
     if @menu_displayed
       draw_menu
     else
-    
+      draw_game_content
     end
-
     @soundtrack_manager.draw(self)
   end
 
   def draw_menu
-    Gosu::Font.new(36).draw_text("Welcome to Tetruby!", 250, 200, 1, 1, 1, Gosu::Color::WHITE)
-    Gosu::Font.new(24).draw_text("Press 'Enter' to start", 250, 300, 1, 1, 1, Gosu::Color::WHITE)
+    scale_x = self.width / @logo.width.to_f
+    scale_y = self.height / @logo.height.to_f
+    scale_factor = [scale_x, scale_y].min * 0.75
+
+    logo_x = (self.width - @logo.width * scale_factor) / 2
+    logo_y = 100
+    @logo.draw(logo_x, logo_y, 1, scale_factor, scale_factor)
+
+    play_now_text = "Play Now"
+    text_x = (self.width - @font.text_width(play_now_text)) / 2
+    text_y = logo_y + @logo.height * scale_factor + 40
+    @font.draw_text(play_now_text, text_x, text_y, 1, 1, 1, Gosu::Color::WHITE)
+    settings_text = "Settings"
+    text_x = (self.width - @font.text_width(settings_text)) / 2
+    text_y = logo_y + @logo.height * scale_factor + 80
+    @font.draw_text(settings_text, text_x, text_y, 1, 1, 1, Gosu::Color::WHITE)
+    exit_text = "Exit"
+    text_x = (self.width - @font.text_width(exit_text)) / 2
+    text_y = logo_y + @logo.height * scale_factor + 120
+    @font.draw_text(exit_text, text_x, text_y, 1, 1, 1, Gosu::Color::WHITE)
+  end
+
+  def draw_game_content
+    @font.draw_text("Game Content Here", 50, 50, 1, 1, 1, Gosu::Color::YELLOW)
   end
 
   def button_down(id)
-    if id == Gosu::KB_RETURN  
+    if @menu_displayed && (id == Gosu::KB_RETURN || (id == Gosu::MS_LEFT && mouse_over_play_now?))
       @menu_displayed = false
     end
+  end
+
+  private
+
+  def mouse_over_play_now?
+   
   end
 end
 
