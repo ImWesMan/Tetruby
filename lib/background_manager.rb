@@ -1,4 +1,5 @@
 class BackgroundManager
+  attr_accessor :beat_manager
   def initialize(window, beat_manager)
     @window = window
     @backgrounds = Dir['assets/images/backgrounds/bg*.jpg']

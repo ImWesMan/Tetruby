@@ -10,7 +10,7 @@ class SoundtrackManager
     @current_song = nil
     @current_song_index = 0
     @playing = false
-    @popup_display_time = 7000  # Time in milliseconds (e.g., 4000ms = 4 seconds)
+    @popup_display_time = 9000  # Time in milliseconds (e.g., 4000ms = 4 seconds)
     @popup_timer_start = nil    
     @current_song_name = ""
     @current_artist_name = ""
