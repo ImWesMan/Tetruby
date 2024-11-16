@@ -1,8 +1,9 @@
 # lib/soundtrack_manager.rb
 require 'gosu'
+require_relative 'beat_manager'
 
 class SoundtrackManager
-  attr_reader :current_song_name, :current_artist_name
+  attr_reader :current_song_name, :current_artist_name, :beat_manager
   
   def initialize
     @songs = Dir['assets/sounds/soundtrack/*.wav']
@@ -13,7 +14,9 @@ class SoundtrackManager
     @popup_timer_start = nil    
     @current_song_name = ""
     @current_artist_name = ""
+    @beat_manager = nil
     @play_button = Gosu::Image.new("assets/images/sprites/playbutton.png")
+    @song_start_time = nil
   end
 
   def play_background_music(window)
@@ -58,10 +61,15 @@ class SoundtrackManager
   end
 
   def update(window)
-    if @popup_timer_start && (Gosu::milliseconds - @popup_timer_start >= @popup_display_time)
+    if @popup_timer_start && (Gosu.milliseconds - @popup_timer_start >= @popup_display_time)
       @popup_timer_start = nil 
     end
     
+    if @playing && @current_song
+      current_time = Gosu.milliseconds - @song_start_time
+      @beat_manager.update(current_time / 1000.0) 
+    end
+
     if @playing && !@current_song.playing?
       next_song
       play_song(window, @current_song_index)
@@ -79,6 +87,9 @@ class SoundtrackManager
     @current_song = Gosu::Song.new(song_path)
     @current_song.play
     @playing = true
+    @song_start_time = Gosu.milliseconds
+
+    @beat_manager = BeatManager.new(song_path)
 
     filename = File.basename(song_path, ".wav")
     artist, song_name = filename.split('_', 2)
@@ -91,7 +102,7 @@ class SoundtrackManager
   def draw_song_popup(window)
     font = Gosu::Font.new(30)
     message = "#{@current_artist_name} - #{@current_song_name}"
-  
+    
     fx = window.width / @play_button.width.to_f
     fy = window.height / @play_button.height.to_f
     scale_factor = [fx, fy].min * 0.1  
@@ -101,8 +112,6 @@ class SoundtrackManager
   
     button_x = window.width - font.text_width(message) - scaled_width - 30
     button_y = window.height - font.height - 40
-  
-    @play_button.draw(button_x, button_y, 1, scale_factor, scale_factor)
   
     text_x = button_x + scaled_width + 10  
     text_y = button_y

@@ -14,8 +14,7 @@ class GameWindow < Gosu::Window
     @soundtrack_manager.shuffle_music(self)
     @soundtrack_manager.play_background_music(self)
 
-    @background_manager = BackgroundManager.new
-    @background_manager.shuffle_background
+    @background_manager = BackgroundManager.new(self, @soundtrack_manager.beat_manager)
 
     @menu_displayed = true
     @font = Gosu::Font.new(24)
@@ -23,10 +22,11 @@ class GameWindow < Gosu::Window
 
   def update
     @soundtrack_manager.update(self)
+    @background_manager.update
   end
 
   def draw
-    @background_manager.draw(self)
+    @background_manager.draw
     
     if @menu_displayed
       draw_menu
@@ -57,6 +57,10 @@ class GameWindow < Gosu::Window
     text_x = (self.width - @font.text_width(exit_text)) / 2
     text_y = logo_y + @logo.height * scale_factor + 120
     @font.draw_text(exit_text, text_x, text_y, 1, 1, 1, Gosu::Color::WHITE)
+    wesman_text = "Made by WesMan v0.01"
+    text_x = 5 
+    text_y = self.height - @font.height - 5  
+    @font.draw_text(wesman_text, text_x, text_y, 0.75, 0.75, 0.75, Gosu::Color::WHITE)
   end
 
   def draw_game_content
@@ -69,10 +73,16 @@ class GameWindow < Gosu::Window
     end
   end
 
+  def close
+    @beat_data = nil
+    @soundtrack_manager.stop_music
+    super
+  end
+
   private
 
   def mouse_over_play_now?
-   
+    # Logic to check if the mouse is over the "Play Now" button
   end
 end
 

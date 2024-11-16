@@ -1,28 +1,29 @@
-require 'aubio'
+require 'json'
 
 class BeatManager
   def initialize(song_path)
-    @file = Aubio.open(song_path)
+    beat_map_path = "assets/sounds/beat_data/#{File.basename(song_path, '.wav')}_beats_bass.json"
+    raise "Beat map not found for #{song_path}" unless File.exist?(beat_map_path)
 
-    @last_beat_time = 0
-    @beat_intensity = 1.0  
+    @beat_data = JSON.parse(File.read(beat_map_path))
+    @beats = @beat_data['beats']
+    @intensities = @beat_data['intensities']
+    @current_beat_index = 0
+    @last_intensity = 0
   end
 
-  def update
-    while (beat = @file.beats.next)
-      time = beat
-      if time > @last_beat_time
-        @last_beat_time = time
-        @beat_intensity = 1.2 + rand(0.2)  
-      end
+  def update(current_time)
+    return if @current_beat_index >= @beats.length
+    
+    while @current_beat_index < @beats.length && current_time >= @beats[@current_beat_index]
+      @last_intensity = @intensities[@current_beat_index]
+      @current_beat_index += 1
     end
   end
 
   def get_beat_intensity
-    @beat_intensity
-  end
-
-  def close
-    @file.close if @file
+    intensity = @last_intensity
+    @last_intensity = 0 
+    intensity
   end
 end
