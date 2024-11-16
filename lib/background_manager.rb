@@ -14,7 +14,7 @@ class BackgroundManager
   def update
     beat_intensity = @beat_manager.get_beat_intensity
     
-    target_zoom = 1.0 + beat_intensity * 0.00005
+    target_zoom = 1.0 + beat_intensity * 0.000075
 
     @zoom_factor = lerp(@zoom_factor, target_zoom, 0.05)
 
