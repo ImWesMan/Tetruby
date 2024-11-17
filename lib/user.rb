@@ -27,17 +27,18 @@ class User
   def decrypt_data(encrypted_data, iv, password)
     cipher = OpenSSL::Cipher.new('AES-256-CBC')
     cipher.decrypt
-    cipher.key = hash_password(password) 
+    cipher.key = hash_password(password)
     cipher.iv = Base64.strict_decode64(iv)
-    decrypted_data = cipher.update(Base64.strict_decode64(encrypted_data)) + cipher.final
-
+  
     begin
+      decrypted_data = cipher.update(Base64.strict_decode64(encrypted_data)) + cipher.final
       decrypted_data = JSON.parse(decrypted_data)
+    rescue OpenSSL::Cipher::CipherError => e
+      raise WrongPasswordError, "Incorrect password or data corruption."
     rescue JSON::ParserError => e
-      puts "Error parsing decrypted data: #{e.message}"
-      return nil
+      raise "Error parsing decrypted data: #{e.message}"
     end
-
+  
     decrypted_data
   end
 
@@ -58,3 +59,5 @@ class User
     decrypt_data(encrypted_data[:encrypted_data], encrypted_data[:iv], password)  # Decrypt using provided password
   end
 end
+
+class WrongPasswordError < StandardError; end

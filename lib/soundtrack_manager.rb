@@ -111,7 +111,7 @@ class SoundtrackManager
     scaled_height = @play_button.height * scale_factor
   
     button_x = window.width - font.text_width(message) - scaled_width - 30
-    button_y = window.height - font.height - 40
+    button_y = window.height - font.height - 60
   
     text_x = button_x + scaled_width + 10  
     text_y = button_y

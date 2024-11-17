@@ -22,4 +22,8 @@ class Button
       mouse_y >= @text.instance_variable_get(:@y) &&
       mouse_y <= @text.instance_variable_get(:@y) + @text.height
   end
+
+  def text_content
+    @text.instance_variable_get(:@content)
+  end
 end
